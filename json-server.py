@@ -2,7 +2,7 @@ import json
 from http.server import HTTPServer
 from nss_handler import HandleRequests, status
 
-from views import get_orders, get_single_order
+from views import get_orders, get_single_order, create_order
 
 class JSONServer(HandleRequests):
     """Server class to handle incoming HTTP requests for Kneel Diamonds"""
@@ -23,6 +23,25 @@ class JSONServer(HandleRequests):
         
         else:
             return self.response("", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
+    
+    def do_POST(self):
+        """Handle POST requests from a client"""
+
+        url = self.parse_url(self.path)
+
+        content_len = int(self.headers.get('content-length', 0))
+        request_body = self.rfile.read(content_len)
+        request_body = json.loads(request_body)
+
+        if url["requested_resource"] == "orders":
+            successfully_created = create_order(request_body)
+            if successfully_created:
+                return self.response("", status.HTTP_201_SUCCESS_CREATED.value)
+
+            return self.response("Could not create Order", status.HTTP_500_SERVER_ERROR.value)
+        
+        else:
+            return self.response("Not found", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
 
 
 def main():
