@@ -11,14 +11,49 @@ def get_orders():
                 o.id,
                 o.metal_id,
                 o.size_id,
-                o.style_id
+                o.style_id,
+                m.metal,
+                m.price AS metal_price,
+                s.carat,
+                s.price AS size_price,
+                st.style,
+                st.price AS style_price
             FROM Orders o
+            JOIN Metals m ON m.id = o.metal_id
+            JOIN Sizes s ON s.id = o.size_id
+            JOIN Styles st ON st.id = o.style_id
         """)
         query_results = db_cursor.fetchall()
 
         orders = []
         for row in query_results:
-            orders.append(dict(row))
+            order = {
+                "id": row["id"],
+                "metal_id": row["metal_id"],
+                "size_id": row["size_id"],
+                "style_id": row["style_id"]
+            }
+            metal = {
+                "id": row["metal_id"],
+                "metal": row["metal"],
+                "price": row["metal_price"]
+            }
+            size = {
+                "id": row["size_id"],
+                "carat": row["carat"],
+                "price": row["size_price"]
+            }
+            style = {
+                "id": row["style_id"],
+                "style": row["style"],
+                "price": row["style_price"]
+            }
+
+            order["metal"] = metal
+            order["size"] = size
+            order["style"] = style
+
+            orders.append(order)
 
         serialized_orders = json.dumps(orders)
 
