@@ -2,7 +2,7 @@ import sqlite3
 import json
 
 def get_orders():
-    with sqlite3.connect("./kneeldiamonds.sqlite3") as conn:
+    with sqlite3.connect("./db.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
@@ -19,17 +19,17 @@ def get_orders():
         orders = []
         for row in query_results:
             orders.append(dict(row))
-        
+
         serialized_orders = json.dumps(orders)
-    
+
     return serialized_orders
 
 def get_single_order(url):
-    with sqlite3.connect("./kneeldiamonds.sqlite3") as conn:
+    with sqlite3.connect("./db.sqlite3") as conn:
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
         order_id = url["pk"]
-            
+
         db_cursor.execute("""
             SELECT
                 o.id,
@@ -46,7 +46,7 @@ def get_single_order(url):
     return serialized_order
 
 def create_order(order_data):
-    with sqlite3.connect("./kneeldiamonds.sqlite3") as conn:
+    with sqlite3.connect("./db.sqlite3") as conn:
         db_cursor = conn.cursor()
 
         db_cursor.execute("""
@@ -55,4 +55,16 @@ def create_order(order_data):
         """, (order_data["metal_id"], order_data["size_id"], order_data["style_id"]))
         number_of_rows_created = db_cursor.rowcount
 
-        return True if number_of_rows_created > 0 else False
+    return True if number_of_rows_created > 0 else False
+
+def delete_order(pk):
+    with sqlite3.connect("./db.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+            DELETE FROM Orders WHERE id = ?
+        """, (pk,))
+        number_of_rows_deleted = db_cursor.rowcount
+
+        return True if number_of_rows_deleted > 0 else False
