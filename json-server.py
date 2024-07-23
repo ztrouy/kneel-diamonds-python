@@ -73,11 +73,10 @@ class JSONServer(HandleRequests):
                 successfully_deleted = delete_order(pk)
                 if successfully_deleted:
                     return self.response("", status.HTTP_204_SUCCESS_NO_RESPONSE_BODY.value)
-                
+
                 return self.response("Requested resource not found", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
 
-        else:
-            return self.response("Not found", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
+        return self.response("Not found", status.HTTP_404_CLIENT_ERROR_RESOURCE_NOT_FOUND.value)
 
 
 def main():
